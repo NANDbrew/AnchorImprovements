@@ -33,8 +33,8 @@ namespace AnchorRework
             mod = modEntry;
 
             // uncomment if using settings
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
+            //modEntry.OnGUI = OnGUI;
+            //modEntry.OnSaveGUI = OnSaveGUI;
 
             return true;
         }
