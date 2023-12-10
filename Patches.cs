@@ -13,6 +13,7 @@ namespace AnchorRework
             [HarmonyPatch("Start")]
             public static void StartPatch(Anchor __instance)
             {
+                __instance.gameObject.layer = 0;
                 if (!__instance.GetComponent<PickupableBoatAnchor>())
                 {
                     __instance.gameObject.AddComponent<PickupableBoatAnchor>();

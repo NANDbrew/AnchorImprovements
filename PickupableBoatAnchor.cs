@@ -11,7 +11,7 @@ namespace AnchorRework
         float outCurrentSqrDist;
         ConfigurableJoint joint;
         Anchor anchor;
-        public float yankForce = 200;
+        public float yankSpeed = 15;
         private float GetCurrentDistanceSquared()
         {
             Vector3 b = this.initialParent.TransformPoint(this.initialPos);
@@ -25,7 +25,7 @@ namespace AnchorRework
                 this.enableRedOutline = false;
                 return;
             }
-            if (this.outCurrentSqrDist > joint.linearLimit.limit * 0.8f)
+            if (this.outCurrentSqrDist > joint.linearLimit.limit * 0.9f)
             {
                 ModLogger.Log(Main.mod, joint.name);
 
@@ -36,6 +36,9 @@ namespace AnchorRework
         }
         private void Awake()
         {
+            holdDistance = 1.5f;
+            heldRotationOffset = 200f;
+            big = false;
             joint = GetComponentInParent<ConfigurableJoint>();
             anchor = joint.GetComponentInParent<Anchor>();
             initialPos = base.transform.localPosition;
@@ -45,6 +48,7 @@ namespace AnchorRework
         {
             if (this.held)
             {
+                //anchor.GetComponent<CapsuleCollider>().enabled = false;
                 float currentDistanceSquared2 = Mathf.Sqrt(GetCurrentDistanceSquared());
                 this.outCurrentSqrDist = currentDistanceSquared2;
                 if (currentDistanceSquared2 > joint.linearLimit.limit)
@@ -52,13 +56,16 @@ namespace AnchorRework
                     this.OnDrop();
                     this.held.DropItem();
                     Vector3 yankPos = initialPos - this.transform.position;
-                    GetComponentInParent<Rigidbody>().AddForceAtPosition(yankPos.normalized * yankForce, joint.transform.position, ForceMode.Impulse);
+                    GetComponentInParent<Rigidbody>().AddForceAtPosition(yankPos.normalized * yankSpeed, joint.transform.position, ForceMode.VelocityChange);
                 }
             }
+/*            else
+            {
+                anchor.GetComponent<CapsuleCollider>().enabled = true;
+            }*/
         }
         public override void OnPickup()
         {
-            heldRotationOffset = 270f;
             anchor.InvokePrivateMethod("ReleaseAnchor");
         }
         public override void OnDrop()
@@ -80,6 +87,10 @@ namespace AnchorRework
             {
                 isColliding = true;
             }
+        }
+        public override void OnScroll(float input)
+        {
+            heldRotationOffset = 200f;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace AnchorRework
     public class ModSettings : UnityModManager.ModSettings, IDrawable
     {
         // place settings here
+        //[Draw("Yank force: ")] public float yankForce = 100f;
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {
@@ -32,8 +33,8 @@ namespace AnchorRework
             mod = modEntry;
 
             // uncomment if using settings
-            //modEntry.OnGUI = OnGUI;
-            //modEntry.OnSaveGUI = OnSaveGUI;
+            modEntry.OnGUI = OnGUI;
+            modEntry.OnSaveGUI = OnSaveGUI;
 
             return true;
         }
