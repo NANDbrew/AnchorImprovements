@@ -1,0 +1,8 @@
+﻿{
+  "Id": "AnchorImprovements",
+  "DisplayName": "Anchor Improvements",
+  "Author": "NANDbrew",
+  "Version": "1.0.0",
+  "EntryMethod": "AnchorRework.Main.Load",
+  "Requirements": ["SailwindModdingHelper"]
+}
