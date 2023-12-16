@@ -1,52 +1,27 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
 using System.Reflection;
-using UnityEngine;
-using UnityModManagerNet;
-using static UnityModManagerNet.UnityModManager.Param;
 
 namespace AnchorRework
 {
-    public class ModSettings : UnityModManager.ModSettings, IDrawable
+    [BepInPlugin(GUID, NAME, VERSION)]
+
+    internal class Main : BaseUnityPlugin
     {
-        // place settings here
-        //[Draw("Yank force: ")] public float yankForce = 100f;
+        public const string GUID = "com.nandbrew.anchorimprovements";
+        public const string NAME = "Anchor Improvements";
+        public const string VERSION = "1.0.2";
 
-        public override void Save(UnityModManager.ModEntry modEntry)
+        internal static Main instance;
+
+        internal static ManualLogSource logSource;
+
+        private void Awake()
         {
-            Save(this, modEntry);
-        }
+            logSource = Logger;
 
-        public void OnChange() { }
-    }
-
-    internal static class Main
-    {
-        public static ModSettings settings;
-        public static UnityModManager.ModEntry mod;
-
-        static bool Load(UnityModManager.ModEntry modEntry)
-        {
-            var harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-
-            settings = UnityModManager.ModSettings.Load<ModSettings>(modEntry);
-            mod = modEntry;
-
-            // uncomment if using settings
-            //modEntry.OnGUI = OnGUI;
-            //modEntry.OnSaveGUI = OnSaveGUI;
-
-            return true;
-        }
-
-        static void OnGUI(UnityModManager.ModEntry modEntry)
-        {
-            settings.Draw(modEntry);
-        }
-
-        static void OnSaveGUI(UnityModManager.ModEntry modEntry)
-        {
-            settings.Save(modEntry);
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), GUID);
         }
     }
 }

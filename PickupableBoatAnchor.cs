@@ -27,7 +27,7 @@ namespace AnchorRework
             }
             if (this.outCurrentSqrDist > joint.linearLimit.limit * 0.9f)
             {
-                ModLogger.Log(Main.mod, joint.name);
+                //ModLogger.Log(Main.mod, joint.name);
 
                 this.enableRedOutline = true;
                 return;
@@ -67,6 +67,7 @@ namespace AnchorRework
         public override void OnPickup()
         {
             anchor.InvokePrivateMethod("ReleaseAnchor");
+            Main.logSource.LogDebug("Picked up anchor");
         }
         public override void OnDrop()
         {
