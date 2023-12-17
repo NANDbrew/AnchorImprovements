@@ -6,6 +6,7 @@ using System.Reflection;
 namespace AnchorRework
 {
     [BepInPlugin(GUID, NAME, VERSION)]
+    [BepInDependency("com.app24.sailwindmoddinghelper", "2.0.0")]
 
     internal class Main : BaseUnityPlugin
     {
