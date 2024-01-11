@@ -77,11 +77,20 @@ namespace AnchorRework
             }
             base.OnDrop();
         }
-        private void OnCollisionExit()
+
+        private void OnCollisionExit(Collision collision)
         {
-            isColliding = false;
-            anchor.InvokePrivateMethod("ReleaseAnchor");
+            if (collision.collider.CompareTag("Terrain"))
+            {
+                isColliding = false;
+                if (held)
+                {
+                    anchor.InvokePrivateMethod("ReleaseAnchor");
+                }
+
+            }      
         }
+
         private void OnCollisionEnter(Collision collision)
         {
             if (collision.collider.CompareTag("Terrain"))
@@ -89,6 +98,7 @@ namespace AnchorRework
                 isColliding = true;
             }
         }
+
         public override void OnScroll(float input)
         {
             heldRotationOffset = 200f;
