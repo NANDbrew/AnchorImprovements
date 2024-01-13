@@ -169,14 +169,14 @@ namespace AnchorRework
                     if (___rope is RopeControllerAnchor rope)
                     {
                         float len = Mathf.Round(rope.joint.linearLimit.limit);
-                        //___description = len + " yards";
-                        float spring = Mathf.Round(rope.joint.linearLimitSpring.spring);
-                        float dist = Mathf.Round(Vector3.Distance(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position, rope.joint.transform.position));
-                        float ang = Mathf.Round(Vector3.Angle(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position - rope.joint.transform.position, rope.joint.transform.root.up));
-                        float power = Mathf.Round(rope.joint.gameObject.GetComponent<Anchor>().unsetForce);
-                        float tensPercent = Mathf.Round(100 * (rope.joint.currentForce.magnitude / power));
+                        ___description = len + " yd";
+                        //float spring = Mathf.Round(rope.joint.linearLimitSpring.spring);
+                        //float dist = Mathf.Round(Vector3.Distance(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position, rope.joint.transform.position));
+                        //float ang = Mathf.Round(Vector3.Angle(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position - rope.joint.transform.position, rope.joint.transform.root.up));
+                        //float power = Mathf.Round(rope.joint.gameObject.GetComponent<Anchor>().unsetForce);
+                        //float tensPercent = Mathf.Round(100 * (rope.joint.currentForce.magnitude / power));
 
-                        ___lookText = "distance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "\n length: " + len + "\ntension: " + tensPercent + "%";
+                        //___lookText = "distance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "\n length: " + len + "\ntension: " + tensPercent + "%";
                         //___lookText = System.Math.Round(angleReadout, 2) + " degrees";
                     }
                 }
