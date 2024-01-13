@@ -20,12 +20,8 @@ namespace AnchorRework
 
         public override void ExtraLateUpdate()
         {
-            if (!this.held)
-            {
-                this.enableRedOutline = false;
-                return;
-            }
-            if (this.outCurrentSqrDist > joint.linearLimit.limit * 0.9f)
+
+            if (held && this.outCurrentSqrDist > joint.linearLimit.limit * 0.9f)
             {
                 //ModLogger.Log(Main.mod, joint.name);
 
