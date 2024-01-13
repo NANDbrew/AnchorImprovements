@@ -11,19 +11,18 @@ namespace AnchorRework
         [HarmonyPatch(typeof(Anchor))]
         private static class AnchorPatch
         {
-            [HarmonyPrefix]
-            [HarmonyPatch("Start")]
-            public static void StartPatch(Anchor __instance)
-            {
-                __instance.gameObject.layer = 0;
 
-                __instance.gameObject.AddComponent<PickupableBoatAnchor>();
-                //Main.logSource.LogError("Anchor Start");
-            }
             [HarmonyPostfix]
             [HarmonyPatch("Start")]
             public static void StartPatch2(Anchor __instance, ref float ___initialMass, ConfigurableJoint ___joint)
             {
+                __instance.gameObject.layer = 0;
+
+                __instance.gameObject.AddComponent<PickupableBoatAnchor>();
+                if (___joint.connectedBody.name.Contains("medi medium"))
+                {
+                    __instance.transform.localScale = new Vector3(1.25f, 1.25f, 1.25f);
+                }
                 if (___initialMass == 1f) ___initialMass = 75f;
                 //__instance.unsetForce = ___initialMass * 150f;
                 SoftJointLimitSpring spring = ___joint.linearLimitSpring;
@@ -73,6 +72,21 @@ namespace AnchorRework
         [HarmonyPatch(typeof(GPButtonRopeWinch))]
         private static class WinchPatches
         {
+            [HarmonyPostfix]
+            [HarmonyPatch("FindBoat")]
+            public static void FindBoatPatch(GPButtonRopeWinch __instance, PurchasableBoat ___boat, ref float ___gearRatio, ref float ___rotationSpeed)
+            {
+                if (__instance.name.Contains("anchor"))
+                {
+                    if (___boat.transform.name.Contains("medi medium"))
+                    {
+                        __instance.transform.localScale = new Vector3(2.0f, 2.0f, 1.5f);
+                    }
+                    ___gearRatio = 25f;
+                    ___rotationSpeed = 8f;
+                }
+            }
+
             [HarmonyPostfix]
             [HarmonyPatch("Update")]
             public static void Postfix(GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
