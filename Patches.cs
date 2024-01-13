@@ -8,10 +8,6 @@ namespace AnchorRework
 {
     internal class Patches
     {
-        private static float curve = 37f;
-        private static float slope = 4.3f;
-        private static float newCurve = 0.172574626866f;
-
         [HarmonyPatch(typeof(Anchor))]
         private static class AnchorPatch
         {
@@ -26,95 +22,16 @@ namespace AnchorRework
             }
             [HarmonyPostfix]
             [HarmonyPatch("Start")]
-            public static void StartPatch2(Anchor __instance, ref float ___initialMass)
+            public static void StartPatch2(Anchor __instance, ref float ___initialMass, ConfigurableJoint ___joint)
             {
                 if (___initialMass == 1f) ___initialMass = 75f;
                 //__instance.unsetForce = ___initialMass * 150f;
+                SoftJointLimitSpring spring = ___joint.linearLimitSpring;
+                spring.damper = 2000f;
+                spring.spring = 2000f;
+                ___joint.linearLimitSpring = spring;
             }
 
-/*            [HarmonyPostfix]
-            [HarmonyPatch("FixedUpdate")]
-            public static void FixedUpdatePatch(Rigidbody ___body, ConfigurableJoint ___joint, float ___anchorDrag, float ___anchorDragUp)
-            {
-                if (___joint.linearLimit.limit < 2f)
-                {
-                    ___body.drag = ___anchorDragUp;
-                }
-                else
-                {
-                    ___body.drag = ___anchorDrag;
-                }
-            }*/
- /*           [HarmonyPrefix]
-            [HarmonyPatch("FixedUpdate")]
-            public static bool FixedUpdatePatch(Anchor __instance, ConfigurableJoint ___joint, float ___unsetForce, AudioSource ___audio, ref float ___lastLength, ref bool ___grounded, Rigidbody ___body, float ___anchorDrag, float ___initialMass, ref float ___outCurrentForce)
-            {
-                if (___grounded)
-                {
-                    if (___body.drag < ___anchorDrag)
-                    {
-                        ___body.drag += Time.deltaTime * ___anchorDrag * 1.5f;
-                    }
-
-                    if (___body.drag > ___anchorDrag)
-                    {
-                        ___body.drag = ___anchorDrag;
-                        if (!___body.isKinematic && !___audio.isPlaying)
-                        {
-                            __instance.InvokePrivateMethod("SetAnchor");
-                        }
-                    }
-                }
-                else if (__instance.transform.position.y < 0f)
-                {
-                    if (___body.drag > 3f)
-                    {
-                        ___body.drag -= Time.deltaTime * ___anchorDrag * 0.25f;
-                    }
-                    else
-                    {
-                        ___body.drag = 3f;
-                    }
-                }
-                Vector3 bottomAttach = ___joint.transform.position;
-                Vector3 topAttach;
-                float angle;
-                topAttach = ___joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position;
-                angle = Vector3.Angle(topAttach - bottomAttach, ___joint.transform.root.up);
-
-                if (___joint.currentForce.magnitude > ___unsetForce * (newCurve * Mathf.Exp(angle / curve) - newCurve) && !___audio.isPlaying)
-                {
-                    __instance.InvokePrivateMethod("ReleaseAnchor");
-                }
-
-                if (___joint.linearLimit.limit < 1f)
-                {
-                    ___body.mass = 0.2f;
-                }
-                else
-                {
-                    ___body.mass = ___initialMass;
-                }
-
-                if ((bool)GameState.currentBoat && ___joint.connectedBody.transform == GameState.currentBoat.parent)
-                {
-                    ___body.interpolation = RigidbodyInterpolation.Interpolate;
-                }
-                else
-                {
-                    ___body.interpolation = RigidbodyInterpolation.None;
-                }
-
-                if ((bool)___audio && ___audio.enabled && !___audio.isPlaying)
-                {
-                    ___audio.enabled = false;
-                }
-
-                ___lastLength = ___joint.linearLimit.limit;
-                ___outCurrentForce = ___joint.currentForce.magnitude;
-
-                return false;
-            }*/
 
             [HarmonyPrefix]
             [HarmonyPatch("ReleaseAnchor")]
@@ -124,31 +41,24 @@ namespace AnchorRework
 
                 Vector3 bottomAttach = ___joint.transform.position;
                 Vector3 topAttach;
-                float angle;
                 topAttach = ___joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position;
-                angle = Vector3.Angle(topAttach - bottomAttach, ___joint.transform.root.up);
-                if (angle < 45f && ___joint.linearLimit.limit < Vector3.Distance(topAttach, bottomAttach))
+                float angle = Vector3.Angle(topAttach - bottomAttach, ___joint.transform.root.up);
+
+                //float spring = Mathf.Max(5000 - (angle + ___joint.linearLimit.limit) * 30, 1000);
+
+                if (angle < 45f && ___joint.linearLimit.limit + 0.01f < ___lastLength)
                 {
                     Debug.Log("anchor line was < 45");
 
                     return true;
                 }
-                if (angle <= 75f && ___joint.currentForce.magnitude >= ___unsetForce)
+                if (___joint.currentForce.magnitude >= ___unsetForce)
                 {
-                    Debug.Log("anchor broke free <= 75");
+                    Debug.Log("anchor broke free");
 
                     return true;
                 }
-                if (angle > 75f && ___joint.currentForce.magnitude >= ___unsetForce * 1.5)
-                {
-                    Debug.Log("anchor broke free > 75");
 
-                    return true;
-                }
-                /*if (___joint.currentForce.magnitude > ___unsetForce * (newCurve * Mathf.Exp(angle / curve) - newCurve))
-                {
-                    return true;
-                }*/
                 if (__instance.GetComponent<PickupableBoatAnchor>().held)
                 {
                     Debug.Log("anchor is held");
@@ -158,17 +68,6 @@ namespace AnchorRework
                 return false;
 
             }
-
-            /*            [HarmonyPostfix]
-                        [HarmonyPatch("OnCollisionEnter")]
-                        public static void CollisionenterPatch(Collision collision, Anchor __instance, ConfigurableJoint ___joint, ref bool ___grounded)
-                        {
-                            if (collision.collider.CompareTag("Boat") && ___joint.linearLimit.limit > 1f)
-                            {
-                                __instance.transform.SetParent(collision.transform.parent);
-                                ___grounded = true;
-                            }
-                        }*/
         }
 
         [HarmonyPatch(typeof(GPButtonRopeWinch))]
@@ -176,14 +75,14 @@ namespace AnchorRework
         {
             [HarmonyPostfix]
             [HarmonyPatch("Update")]
-            public static void Postfix(bool ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
+            public static void Postfix(GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
             {
                 if (___isLookedAt || ___stickyClickedBy)
                 {
                     if (___rope is RopeControllerAnchor rope)
                     {
-                        ___description = Mathf.RoundToInt(rope.joint.linearLimit.limit).ToString() + " yds";
-                        ___lookText = Mathf.RoundToInt(Vector3.Distance(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position, rope.joint.transform.position)).ToString();
+                        ___description = Mathf.RoundToInt(rope.joint.linearLimit.limit).ToString() + " yd";
+                        //___lookText = Mathf.RoundToInt(Vector3.Distance(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position, rope.joint.transform.position)).ToString();
 
                     }
                 }
@@ -206,11 +105,11 @@ namespace AnchorRework
             {
                 if (___joint.GetComponent<Anchor>().IsSet())
                 {
-                    ___currentResistance = Mathf.Max(___joint.currentForce.magnitude, 20f);
+                    ___currentResistance = Mathf.Max(___joint.currentForce.magnitude, 10f);
                 }
                 else
                 {
-                    ___currentResistance = Mathf.Min(___joint.currentForce.magnitude / 10f, 20f);
+                    ___currentResistance = Mathf.Min(___joint.currentForce.magnitude / 10f, 10f);
 
                 }
             }
