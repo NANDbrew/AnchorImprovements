@@ -6,16 +6,22 @@ namespace AnchorRework
     internal class PickupableBoatAnchor : PickupableItem
     {
         public bool isColliding;
-        Vector3 initialPos;
-        Transform initialParent;
+        //Vector3 initialPos;
+        //Transform initialParent;
         float outCurrentSqrDist;
         ConfigurableJoint joint;
         Anchor anchor;
         public float yankSpeed = 15;
+
+        public Transform topAttach;
+
         private float GetCurrentDistanceSquared()
         {
-            Vector3 b = this.initialParent.TransformPoint(this.initialPos);
-            return Vector3.SqrMagnitude(base.transform.position - b);
+            if (topAttach == null)
+            {
+                topAttach = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne");
+            }
+            return Vector3.SqrMagnitude(base.transform.position - topAttach.position);
         }
 
         public override void ExtraLateUpdate()
@@ -34,17 +40,16 @@ namespace AnchorRework
             }
             this.enableRedOutline = false;
         }
-        private void Awake()
+        public void Awake()
         {
             holdDistance = 1.5f;
             heldRotationOffset = 200f;
             big = false;
             joint = GetComponentInParent<ConfigurableJoint>();
             anchor = joint.GetComponentInParent<Anchor>();
-            initialPos = base.transform.localPosition;
-            initialParent = base.transform.parent;
+            //topAttach = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne");
         }
-        private void Update()
+        public void Update()
         {
             if (this.held)
             {
@@ -55,7 +60,7 @@ namespace AnchorRework
                 {
                     this.OnDrop();
                     this.held.DropItem();
-                    Vector3 yankPos = initialPos - this.transform.position;
+                    Vector3 yankPos = topAttach.position - this.transform.position;
                     GetComponentInParent<Rigidbody>().AddForceAtPosition(yankPos.normalized * yankSpeed, joint.transform.position, ForceMode.VelocityChange);
                 }
             }
