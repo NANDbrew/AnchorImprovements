@@ -12,7 +12,7 @@ namespace AnchorRework
     {
         public const string GUID = "com.nandbrew.anchorimprovements";
         public const string NAME = "Anchor Improvements";
-        public const string VERSION = "2.0.0.1";
+        public const string VERSION = "2.0.0.2";
 
         internal static Main instance;
 

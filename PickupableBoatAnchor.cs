@@ -6,16 +6,19 @@ namespace AnchorRework
     internal class PickupableBoatAnchor : PickupableItem
     {
         public bool isColliding;
-        Vector3 initialPos;
-        Transform initialParent;
         float outCurrentSqrDist;
         ConfigurableJoint joint;
         Anchor anchor;
         public float yankSpeed = 15;
+        private Transform topAttach;
+
         private float GetCurrentDistanceSquared()
         {
-            Vector3 b = this.initialParent.TransformPoint(this.initialPos);
-            return Vector3.SqrMagnitude(base.transform.position - b);
+            if (topAttach == null)
+            {
+                topAttach = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne");
+            }
+            return Vector3.SqrMagnitude(base.transform.position - topAttach.position);
         }
 
         public override void ExtraLateUpdate()
@@ -37,8 +40,6 @@ namespace AnchorRework
             big = false;
             joint = GetComponentInParent<ConfigurableJoint>();
             anchor = joint.GetComponentInParent<Anchor>();
-            initialPos = base.transform.localPosition;
-            initialParent = base.transform.parent;
         }
         private void Update()
         {
@@ -51,7 +52,7 @@ namespace AnchorRework
                 {
                     this.OnDrop();
                     this.held.DropItem();
-                    Vector3 yankPos = initialPos - this.transform.position;
+                    Vector3 yankPos = topAttach.position - this.transform.position;
                     GetComponentInParent<Rigidbody>().AddForceAtPosition(yankPos.normalized * yankSpeed, joint.transform.position, ForceMode.VelocityChange);
                 }
             }
