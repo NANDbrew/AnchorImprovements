@@ -118,11 +118,11 @@ namespace AnchorRework
             {
                 if (___joint.GetComponent<Anchor>().IsSet())
                 {
-                    ___currentResistance = Mathf.Max(___joint.currentForce.magnitude, 10f);
+                    ___currentResistance = Mathf.Max(___joint.currentForce.magnitude * 0.8f, 10f);
                 }
                 else
                 {
-                    ___currentResistance = Mathf.Min(___joint.currentForce.magnitude / 10f, 10f);
+                    ___currentResistance = Mathf.Min(___joint.currentForce.magnitude / 10f, 5f);
 
                 }
             }

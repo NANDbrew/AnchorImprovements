@@ -6,8 +6,6 @@ namespace AnchorRework
     internal class PickupableBoatAnchor : PickupableItem
     {
         public bool isColliding;
-        //Vector3 initialPos;
-        //Transform initialParent;
         float outCurrentSqrDist;
         ConfigurableJoint joint;
         Anchor anchor;
@@ -47,13 +45,11 @@ namespace AnchorRework
             big = false;
             joint = GetComponentInParent<ConfigurableJoint>();
             anchor = joint.GetComponentInParent<Anchor>();
-            //topAttach = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne");
         }
         public void Update()
         {
             if (this.held)
             {
-                //anchor.GetComponent<CapsuleCollider>().enabled = false;
                 float currentDistanceSquared2 = Mathf.Sqrt(GetCurrentDistanceSquared());
                 this.outCurrentSqrDist = currentDistanceSquared2;
                 if (currentDistanceSquared2 > joint.linearLimit.limit)
@@ -64,10 +60,6 @@ namespace AnchorRework
                     GetComponentInParent<Rigidbody>().AddForceAtPosition(yankPos.normalized * yankSpeed, joint.transform.position, ForceMode.VelocityChange);
                 }
             }
-/*            else
-            {
-                anchor.GetComponent<CapsuleCollider>().enabled = true;
-            }*/
         }
         public override void OnPickup()
         {
