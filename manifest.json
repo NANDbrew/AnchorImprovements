@@ -1,0 +1,10 @@
+﻿{
+    "name": "AnchorImprovements",
+    "version_number": "1.1.0",
+    "website_url": "https://github.com/NANDbrew/AnchorImprovements",
+    "description": "Boat anchors can be carried and used for maneuvering. Also easier to set.",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2100",
+        "App24-SailwindModdingHelper-2.0.3"
+    ]
+}

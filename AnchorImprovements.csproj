@@ -91,11 +91,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="manifest.json" />
     <None Include="packages.config" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "AnchorImprovements.dll" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins"</PostBuildEvent>
+    <PostBuildEvent>xcopy /y "AnchorImprovements.dll" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"
+cd "..\"
+xcopy /y "manifest.json" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"
+xcopy /y "icon.png" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
