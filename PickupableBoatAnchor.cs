@@ -13,15 +13,17 @@ namespace AnchorRework
         private Transform topAttach;
 
         public Transform GetTopAttach()
-        { return topAttach; }
-
-        private float GetCurrentDistanceSquared()
         {
             if (topAttach == null)
             {
                 topAttach = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne");
             }
-            return Vector3.SqrMagnitude(base.transform.position - topAttach.position);
+            return topAttach; 
+        }
+
+        private float GetCurrentDistanceSquared()
+        {
+            return Vector3.SqrMagnitude(base.transform.position - GetTopAttach().position);
         }
 
         public override void ExtraLateUpdate()
@@ -32,9 +34,11 @@ namespace AnchorRework
                 //ModLogger.Log(Main.mod, joint.name);
 
                 this.enableRedOutline = true;
-                return;
             }
-            this.enableRedOutline = false;
+            else
+            {
+                this.enableRedOutline = false;
+            }
         }
         private void Awake()
         {

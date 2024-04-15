@@ -95,7 +95,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "AnchorImprovements.dll" "E:\Program Files\Sailwind -BepInEx\BepInEx\plugins"</PostBuildEvent>
+    <PostBuildEvent>xcopy /y "AnchorImprovements.dll" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
