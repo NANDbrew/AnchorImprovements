@@ -39,10 +39,12 @@ namespace AnchorRework
                 ___audio.maxDistance *= 3f;
                 if (___initialMass == 1f) ___initialMass = 75f;
             }
+
             private static float Power(float angle)
             {
                 return Mathf.Pow(angle, 2) / 64; // 64 is 100% power at 80 degrees, increase for less peak power
             }
+
             [HarmonyPrefix]
             [HarmonyPatch("FixedUpdate")]
             public static bool FixedUpdatePatch(Anchor __instance, ConfigurableJoint ___joint, ref float ___unsetForce, AudioSource ___audio, ref float ___lastLength, ref bool ___grounded, Rigidbody ___body, float ___anchorDrag, float ___initialMass, ref float ___outCurrentForce)
@@ -60,7 +62,7 @@ namespace AnchorRework
                     ___body.mass = ___initialMass;
 
                     Vector3 bottomAttach = ___joint.transform.position;
-                    Vector3 topAttach = ___joint.connectedBody.gameObject.GetComponentInChildren<RopeControllerAnchor>().GetPrivateField<RopeEffect>("rope").GetPrivateField<Transform>("attachmentOne").position;
+                    Vector3 topAttach = __instance.GetComponent<PickupableBoatAnchor>().GetTopAttach().position;
                     float angle1 = Vector3.Angle(topAttach - bottomAttach, ___joint.transform.root.up);
                     if (angle1 < 90) power2 = Power(angle1);
                     else power2 = Power(-angle1 % 90);

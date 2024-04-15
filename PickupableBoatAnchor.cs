@@ -12,6 +12,9 @@ namespace AnchorRework
         public float yankSpeed = 15;
         private Transform topAttach;
 
+        public Transform GetTopAttach()
+        { return topAttach; }
+
         private float GetCurrentDistanceSquared()
         {
             if (topAttach == null)
