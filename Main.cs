@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using System.Reflection;
 using BepInEx.Configuration;
+using System;
 
 namespace AnchorRework
 {
@@ -19,7 +20,7 @@ namespace AnchorRework
 
         internal static ManualLogSource logSource;
 
-        internal static ConfigEntry<bool> simplePhysics; 
+        internal static ConfigEntry<string> simplePhysics; 
 
         public void Awake()
         {
@@ -27,7 +28,9 @@ namespace AnchorRework
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), GUID);
 
-            simplePhysics = Config.Bind("options", "Simple Physics", true, new ConfigDescription(""));
+            simplePhysics = Config.Bind("Options", "Anchor mechanics", "Simple", new ConfigDescription("Simple: Normal with minor improvements \nRealistic: Holding power based on scope (angle)", new AcceptableValueList<string>(new string[] { "Simple", "Realistic" })));
         }
+        
     }
+
 }

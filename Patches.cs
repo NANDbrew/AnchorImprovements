@@ -53,7 +53,7 @@ namespace AnchorRework
             [HarmonyPatch("FixedUpdate")]
             public static bool FixedUpdatePatch(Anchor __instance, ConfigurableJoint ___joint, ref float ___unsetForce, AudioSource ___audio, ref float ___lastLength, ref bool ___grounded, Rigidbody ___body, float ___anchorDrag, float ___initialMass, ref float ___outCurrentForce)
             {
-                if (Main.simplePhysics.Value) return true;
+                if (Main.simplePhysics.Value != "Realistic") return true;
 
                 if (___joint.linearLimit.limit < 1f)
                 {
@@ -154,7 +154,7 @@ namespace AnchorRework
             [HarmonyPostfix]
             public static void FixedUpdatePatchSimple(Anchor __instance, Rigidbody ___body, bool ___grounded, float ___anchorDrag, AudioSource ___audio, ref ConfigurableJoint ___joint)
             {
-                if (!Main.simplePhysics.Value) return;
+                if (Main.simplePhysics.Value != "Simple") return;
 
                 SoftJointLimitSpring spring = ___joint.linearLimitSpring;
                 spring.damper = 2000f;
@@ -177,7 +177,7 @@ namespace AnchorRework
             public static bool Prefix(Anchor __instance, ConfigurableJoint ___joint, float ___unsetForce, AudioSource ___audio, float ___lastLength)
             {
                 //Main.logSource.LogInfo("Anchor Released");
-                if (!Main.simplePhysics.Value) return true;
+                if (Main.simplePhysics.Value != "Realistic") return true;
 
                 Vector3 bottomAttach = ___joint.transform.position;
                 Vector3 topAttach = __instance.GetComponent<PickupableBoatAnchor>().GetTopAttach().position;
@@ -264,7 +264,7 @@ namespace AnchorRework
             [HarmonyPatch("Update")]
             public static void UpdatePatch(ConfigurableJoint ___joint, ref float ___currentResistance, ref float ___maxLength)
             {
-                if (Main.simplePhysics.Value)
+                if (Main.simplePhysics.Value != "Simple")
                 {
                     ___maxLength = 50f;
                 }
