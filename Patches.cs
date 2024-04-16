@@ -177,7 +177,7 @@ namespace AnchorRework
             public static bool Prefix(Anchor __instance, ConfigurableJoint ___joint, float ___unsetForce, AudioSource ___audio, float ___lastLength)
             {
                 //Main.logSource.LogInfo("Anchor Released");
-                if (Main.simplePhysics.Value != "Realistic") return true;
+                if (Main.simplePhysics.Value != "Simple") return true;
 
                 Vector3 bottomAttach = ___joint.transform.position;
                 Vector3 topAttach = __instance.GetComponent<PickupableBoatAnchor>().GetTopAttach().position;
@@ -264,11 +264,11 @@ namespace AnchorRework
             [HarmonyPatch("Update")]
             public static void UpdatePatch(ConfigurableJoint ___joint, ref float ___currentResistance, ref float ___maxLength)
             {
-                if (Main.simplePhysics.Value != "Simple")
+                if (Main.simplePhysics.Value == "Simple")
                 {
                     ___maxLength = 50f;
                 }
-                else
+                if (Main.simplePhysics.Value == "Realistic")
                 {
                     ___maxLength = 150f;
                 }

@@ -103,7 +103,8 @@
     <PostBuildEvent>xcopy /y "AnchorImprovements.dll" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"
 cd "..\"
 xcopy /y "manifest.json" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"
-xcopy /y "icon.png" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"</PostBuildEvent>
+xcopy /y "icon.png" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"
+xcopy /y "README.md" "C:\Program Files (x86)\Steam\steamapps\common\Sailwind\BepInEx\Plugins\AnchorImprovements"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets" Condition="Exists('packages\BepInEx.Core.5.4.11\build\BepInEx.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
