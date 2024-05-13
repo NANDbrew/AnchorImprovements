@@ -18,24 +18,28 @@ namespace AnchorRework
         public string dataName;
         private bool gameSettled;
 
-        public Dictionary<string, string> modData;
+        //public Dictionary<string, string> modData;
+        /*transform.position.x.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.position.y.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.position.z.ToString(CultureInfo.InvariantCulture) + ","*/
 
 
         public void SaveAnchorData()
         {
-            if (Main.saveAnchorPosition.Value && GetAnchorController().currentLength > 0)
+            if (Main.saveAnchorPosition.Value && joint.linearLimit.limit > 1)
             {
+                Vector3 pos2 = new Vector3(transform.position.x - GetTopAttach().position.x, transform.position.y - GetTopAttach().position.y, transform.position.z - GetTopAttach().position.z);
                 // pos x, pos y, pos z, controller rope length, is set?, joint rope length.
                 string anchorData = 
-                    transform.position.x.ToString(CultureInfo.InvariantCulture) + ","
-                    + transform.position.y.ToString(CultureInfo.InvariantCulture) + ","
-                    + transform.position.z.ToString(CultureInfo.InvariantCulture) + ","
+                    pos2.x.ToString(CultureInfo.InvariantCulture) + "," 
+                    + pos2.y.ToString(CultureInfo.InvariantCulture) + "," 
+                    + pos2.z.ToString(CultureInfo.InvariantCulture) + "," 
                     + GetAnchorController().currentLength.ToString(CultureInfo.InvariantCulture) + ","
                     + anchor.IsSet().ToString() + ","
                     + joint.linearLimit.limit.ToString(CultureInfo.InvariantCulture) + ","
                     + transform.eulerAngles.x.ToString(CultureInfo.InvariantCulture) + ","
                     + transform.eulerAngles.y.ToString(CultureInfo.InvariantCulture) + ","
-                    + transform.eulerAngles.z.ToString(CultureInfo.InvariantCulture);
+                    + transform.eulerAngles.z.ToString(CultureInfo.InvariantCulture) ;
 
                 if (GameState.modData.ContainsKey(dataName))
                 {
@@ -53,27 +57,28 @@ namespace AnchorRework
             }
         }
 
-
-
         IEnumerator LoadAnchorData()
         {
-            //if (!Main.saveAnchorPosition.Value) yield break;
 
             if (Main.saveAnchorPosition.Value && GameState.modData.ContainsKey(dataName)) 
             {
                 GameState.modData.TryGetValue(dataName, out string anchorData);
                 string[] strings = anchorData.Split(',');
 
+                //Vector3 pos = new Vector3(float.Parse(strings[0], CultureInfo.InvariantCulture), float.Parse(strings[1], CultureInfo.InvariantCulture), float.Parse(strings[2], CultureInfo.InvariantCulture));
                 Vector3 pos = new Vector3(float.Parse(strings[0], CultureInfo.InvariantCulture), float.Parse(strings[1], CultureInfo.InvariantCulture), float.Parse(strings[2], CultureInfo.InvariantCulture));
+                float savedLength = float.Parse(strings[5], CultureInfo.InvariantCulture);
+                float dist = Vector3.Magnitude(pos);
+                if (dist > savedLength) savedLength = dist;
 
-                GetAnchorController().currentLength = float.Parse(strings[3], CultureInfo.InvariantCulture);
-                Main.logSource.LogDebug("rope length= " + GetAnchorController().currentLength);
                 var lim = joint.linearLimit;
-                lim.limit = float.Parse(strings[5], CultureInfo.InvariantCulture);
+                lim.limit = savedLength; //Vector3.Distance(pos, GetTopAttach().position); //float.Parse(strings[5], CultureInfo.InvariantCulture);
+                GetAnchorController().currentLength = lim.limit / GetAnchorController().maxLength; //float.Parse(strings[3], CultureInfo.InvariantCulture);
                 joint.linearLimit = lim;
-                Main.logSource.LogDebug("joint limit= " + joint.linearLimit.limit);
+                //Main.logSource.LogDebug("rope length= " + GetAnchorController().currentLength);
+                //Main.logSource.LogDebug("joint limit= " + joint.linearLimit.limit);
                 yield return new WaitForEndOfFrame();
-                transform.position = pos;
+                transform.position = pos + GetTopAttach().position;
                 if (strings.Length >= 9)
                 {
                     Vector3 rot = new Vector3(float.Parse(strings[6], CultureInfo.InvariantCulture), float.Parse(strings[7], CultureInfo.InvariantCulture), float.Parse(strings[8], CultureInfo.InvariantCulture));
@@ -81,7 +86,7 @@ namespace AnchorRework
                 }
                 if (strings[4] == "True") anchor.InvokePrivateMethod("SetAnchor");
             }
-            modData = GameState.modData;
+            //modData = GameState.modData;
 
         }
 

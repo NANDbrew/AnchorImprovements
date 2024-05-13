@@ -15,7 +15,7 @@ namespace AnchorRework
     {
         public const string GUID = "com.nandbrew.anchorimprovements";
         public const string NAME = "Anchor Improvements";
-        public const string VERSION = "1.1.2";
+        public const string VERSION = "1.1.3";
 
         internal static Main instance;
         internal static ManualLogSource logSource;
@@ -23,6 +23,7 @@ namespace AnchorRework
         internal static ConfigEntry<string> simplePhysics;
         internal static ConfigEntry<bool> saveAnchorPosition;
         internal static ConfigEntry<bool> winchInfo;
+        //internal static ConfigEntry<bool> advancedInfo;
 
         internal static List<PickupableBoatAnchor> boatAnchors = new List<PickupableBoatAnchor>();
 
@@ -35,6 +36,7 @@ namespace AnchorRework
             simplePhysics = Config.Bind("Options", "Anchor mechanics", "Simple", new ConfigDescription("Simple: Normal with minor improvements \nRealistic: Holding power based on scope (angle)", new AcceptableValueList<string>(new string[] { "Simple", "Realistic" })));
             saveAnchorPosition = Config.Bind("Options", "Save anchor position", true, new ConfigDescription(""));
             winchInfo = Config.Bind("Options", "Winch info", true, new ConfigDescription("Show how many yards of rope are out when looking at windlass"));
+            //advancedInfo = Config.Bind("Options", "Advanced info", true, new ConfigDescription("Show extra info when looking at windlass"));
         }
 
     }

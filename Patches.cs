@@ -235,24 +235,26 @@ namespace AnchorRework
                 {
                     if (___rope is RopeControllerAnchor rope)
                     {
+                        string text = "";
+                        float len = Mathf.Round(rope.joint.linearLimit.limit);
                         if (Main.winchInfo.Value)
                         {
-                            float len = Mathf.Round(rope.joint.linearLimit.limit);
-                            ___description = len + " yd";
-                        }
-                        else
-                        {
-                            ___description = "";
-                        }
-                        //float spring = Mathf.Round(rope.joint.linearLimitSpring.spring);
-                        //float dist = Mathf.Round(Vector3.Distance(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position, rope.joint.transform.position));
-                        //float ang = Mathf.Round(Vector3.Angle(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position - rope.joint.transform.position, rope.joint.transform.root.up));
-                        //float power = Mathf.Round(rope.joint.gameObject.GetComponent<Anchor>().unsetForce);
-                        //float tensPercent = Mathf.Round(100 * (rope.joint.currentForce.magnitude / power));
+                            text = len + " yd";
 
-                        //___lookText = "distance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "\n length: " + len + "\ntension: " + tensPercent + "%";
+                        }
                         //___lookText = System.Math.Round(angleReadout, 2) + " degrees";
                         //if (rope.joint.currentForce.magnitude > rope.joint.gameObject.GetComponent<Anchor>().unsetForce * 0.5) __instance.enableRedOutline = true;
+                        /*if (Main.advancedInfo.Value)
+                        {
+                            float spring = Mathf.Round(rope.joint.linearLimitSpring.spring);
+                            float dist = Mathf.Round(Vector3.Distance(rope.joint.GetComponent<PickupableBoatAnchor>().GetTopAttach().position, rope.joint.transform.position));
+                            float ang = Mathf.Round(Vector3.Angle(rope.joint.GetComponent<PickupableBoatAnchor>().GetTopAttach().position - rope.joint.transform.position, rope.joint.transform.root.up));
+                            float power = Mathf.Round(rope.joint.gameObject.GetComponent<Anchor>().unsetForce);
+                            float tensPercent = Mathf.Round(100 * (rope.joint.currentForce.magnitude / power));
+
+                            text = "length: " + len + "\ndistance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "\ntension: " + tensPercent + "%";
+                        }*/
+                        ___description = text;
                     }
 
                 }
