@@ -1,16 +1,89 @@
 ﻿using SailwindModdingHelper;
 using UnityEngine;
+using System.Text.Json;
+using System.Collections.Generic;
+using System.Collections;
+using System.Globalization;
 
 namespace AnchorRework
 {
     internal class PickupableBoatAnchor : PickupableItem
     {
         public bool isColliding;
-        float outCurrentSqrDist;
-        ConfigurableJoint joint;
-        Anchor anchor;
+        public ConfigurableJoint joint;
+        public Anchor anchor;
         public float yankSpeed = 15;
         private Transform topAttach;
+        private RopeControllerAnchor anchorController;
+        public string dataName;
+        private bool gameSettled;
+
+        public Dictionary<string, string> modData;
+
+
+        public void SaveAnchorData()
+        {
+            if (Main.saveAnchorPosition.Value && GetAnchorController().currentLength > 0)
+            {
+                // pos x, pos y, pos z, controller rope length, is set?, joint rope length.
+                string anchorData = 
+                    transform.position.x.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.position.y.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.position.z.ToString(CultureInfo.InvariantCulture) + ","
+                    + GetAnchorController().currentLength.ToString(CultureInfo.InvariantCulture) + ","
+                    + anchor.IsSet().ToString() + ","
+                    + joint.linearLimit.limit.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.eulerAngles.x.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.eulerAngles.y.ToString(CultureInfo.InvariantCulture) + ","
+                    + transform.eulerAngles.z.ToString(CultureInfo.InvariantCulture);
+
+                if (GameState.modData.ContainsKey(dataName))
+                {
+                    GameState.modData[dataName] = anchorData;
+                }
+                else
+                {
+                    GameState.modData.Add(dataName, anchorData);
+                }
+                Main.logSource.LogDebug(anchorData);
+            }
+            else if (GameState.modData.ContainsKey (dataName)) 
+            {
+                GameState.modData.Remove(dataName); 
+            }
+        }
+
+
+
+        IEnumerator LoadAnchorData()
+        {
+            //if (!Main.saveAnchorPosition.Value) yield break;
+
+            if (Main.saveAnchorPosition.Value && GameState.modData.ContainsKey(dataName)) 
+            {
+                GameState.modData.TryGetValue(dataName, out string anchorData);
+                string[] strings = anchorData.Split(',');
+
+                Vector3 pos = new Vector3(float.Parse(strings[0], CultureInfo.InvariantCulture), float.Parse(strings[1], CultureInfo.InvariantCulture), float.Parse(strings[2], CultureInfo.InvariantCulture));
+
+                GetAnchorController().currentLength = float.Parse(strings[3], CultureInfo.InvariantCulture);
+                Main.logSource.LogDebug("rope length= " + GetAnchorController().currentLength);
+                var lim = joint.linearLimit;
+                lim.limit = float.Parse(strings[5], CultureInfo.InvariantCulture);
+                joint.linearLimit = lim;
+                Main.logSource.LogDebug("joint limit= " + joint.linearLimit.limit);
+                yield return new WaitForEndOfFrame();
+                transform.position = pos;
+                if (strings.Length >= 9)
+                {
+                    Vector3 rot = new Vector3(float.Parse(strings[6], CultureInfo.InvariantCulture), float.Parse(strings[7], CultureInfo.InvariantCulture), float.Parse(strings[8], CultureInfo.InvariantCulture));
+                    transform.eulerAngles = rot;
+                }
+                if (strings[4] == "True") anchor.InvokePrivateMethod("SetAnchor");
+            }
+            modData = GameState.modData;
+
+        }
 
         public Transform GetTopAttach()
         {
@@ -21,15 +94,21 @@ namespace AnchorRework
             return topAttach; 
         }
 
-        private float GetCurrentDistanceSquared()
+        public RopeControllerAnchor GetAnchorController()
         {
-            return Vector3.SqrMagnitude(base.transform.position - GetTopAttach().position);
+            if (anchorController == null) anchorController = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController();
+            return anchorController;
+        }
+
+        private float GetCurrentDistance()
+        {
+            return Vector3.Distance(transform.position, GetTopAttach().position);
         }
 
         public override void ExtraLateUpdate()
         {
 
-            if (held && this.outCurrentSqrDist > joint.linearLimit.limit * 0.9f)
+            if (held && GetCurrentDistance() > anchorController.maxLength * 0.9f)
             {
                 //ModLogger.Log(Main.mod, joint.name);
 
@@ -42,20 +121,28 @@ namespace AnchorRework
         }
         private void Awake()
         {
+            gameSettled = false;
             holdDistance = 1.5f;
             heldRotationOffset = 200f;
             big = false;
             joint = GetComponentInParent<ConfigurableJoint>();
             anchor = joint.GetComponentInParent<Anchor>();
+            anchorController = joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController();
+            dataName = Main.NAME + "." + joint.connectedBody.name;
+
+            if (!Main.boatAnchors.Contains(this))
+            {
+                Main.boatAnchors.Add(this);
+            }
+
         }
         private void Update()
         {
             if (this.held)
             {
                 //anchor.GetComponent<CapsuleCollider>().enabled = false;
-                float currentDistanceSquared2 = Mathf.Sqrt(GetCurrentDistanceSquared());
-                this.outCurrentSqrDist = currentDistanceSquared2;
-                if (currentDistanceSquared2 > joint.linearLimit.limit)
+
+                if (GetCurrentDistance() >= GetAnchorController().maxLength)
                 {
                     this.OnDrop();
                     this.held.DropItem();
@@ -63,6 +150,13 @@ namespace AnchorRework
                     GetComponentInParent<Rigidbody>().AddForceAtPosition(yankPos.normalized * yankSpeed, joint.transform.position, ForceMode.VelocityChange);
                 }
             }
+
+            if (!gameSettled && GameState.playing && !GameState.justStarted && !Refs.shiftingWorld.GetComponent<FloatingOriginManager>().GetPrivateField<bool>("instantShifting"))
+            {
+                StartCoroutine(LoadAnchorData());
+                gameSettled = true;
+            }
+
 /*            else
             {
                 anchor.GetComponent<CapsuleCollider>().enabled = true;
@@ -72,14 +166,22 @@ namespace AnchorRework
         {
             anchor.InvokePrivateMethod("ReleaseAnchor");
             Main.logSource.LogDebug("Picked up anchor");
+            GetAnchorController().currentLength = anchorController.maxLength;
+
+           // Main.logSource.LogDebug("anchor controller limit" + linearLimit.limit);
+            //Main.logSource.LogDebug("joint limit" + joint.linearLimit.limit);
         }
         public override void OnDrop()
         {
+            GetAnchorController().currentLength = GetCurrentDistance() / anchorController.maxLength;
+
             if (isColliding)
             {
                 anchor.InvokePrivateMethod("SetAnchor");
             }
             base.OnDrop();
+            //Debug.Log(linearLimit.limit);
+
         }
 
         private void OnCollisionExit(Collision collision)

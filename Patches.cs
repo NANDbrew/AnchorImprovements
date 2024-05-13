@@ -54,6 +54,7 @@ namespace AnchorRework
             public static bool FixedUpdatePatch(Anchor __instance, ConfigurableJoint ___joint, ref float ___unsetForce, AudioSource ___audio, ref float ___lastLength, ref bool ___grounded, Rigidbody ___body, float ___anchorDrag, float ___initialMass, ref float ___outCurrentForce)
             {
                 if (Main.simplePhysics.Value != "Realistic") return true;
+                //if (!GameState.playing || GameState.justStarted) return true;
 
                 if (___joint.linearLimit.limit < 1f)
                 {
@@ -213,9 +214,9 @@ namespace AnchorRework
         {
             [HarmonyPostfix]
             [HarmonyPatch("FindBoat")]
-            public static void FindBoatPatch(GPButtonRopeWinch __instance, PurchasableBoat ___boat, ref float ___gearRatio, ref float ___rotationSpeed)
+            public static void FindBoatPatch(GPButtonRopeWinch __instance, PurchasableBoat ___boat, ref float ___gearRatio, ref float ___rotationSpeed, RopeController ___rope)
             {
-                if (__instance.name.Contains("anchor"))
+                if (___rope is RopeControllerAnchor)
                 {
                     if (___boat.transform.name.Contains("medi medium"))
                     {
@@ -228,14 +229,21 @@ namespace AnchorRework
 
             [HarmonyPostfix]
             [HarmonyPatch("Update")]
-            public static void WinchUpdatePatch(GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
+            public static void WinchUpdatePatch(GPButtonRopeWinch __instance, GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
             {
                 if (___isLookedAt || (bool)___stickyClickedBy)
                 {
                     if (___rope is RopeControllerAnchor rope)
                     {
-                        float len = Mathf.Round(rope.joint.linearLimit.limit);
-                        ___description = len + " yd";
+                        if (Main.winchInfo.Value)
+                        {
+                            float len = Mathf.Round(rope.joint.linearLimit.limit);
+                            ___description = len + " yd";
+                        }
+                        else
+                        {
+                            ___description = "";
+                        }
                         //float spring = Mathf.Round(rope.joint.linearLimitSpring.spring);
                         //float dist = Mathf.Round(Vector3.Distance(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position, rope.joint.transform.position));
                         //float ang = Mathf.Round(Vector3.Angle(rope.joint.connectedBody.gameObject.GetComponent<BoatMooringRopes>().GetAnchorController().GetComponent<RopeEffect>().GetPrivateField<Transform>("attachmentOne").position - rope.joint.transform.position, rope.joint.transform.root.up));
@@ -244,7 +252,9 @@ namespace AnchorRework
 
                         //___lookText = "distance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "\n length: " + len + "\ntension: " + tensPercent + "%";
                         //___lookText = System.Math.Round(angleReadout, 2) + " degrees";
+                        //if (rope.joint.currentForce.magnitude > rope.joint.gameObject.GetComponent<Anchor>().unsetForce * 0.5) __instance.enableRedOutline = true;
                     }
+
                 }
             }
         }
