@@ -17,7 +17,7 @@ namespace AnchorRework
         private RopeControllerAnchor anchorController;
         public string dataName;
         private bool gameSettled;
-
+        float currentThrowPower = 0f;
         //public Dictionary<string, string> modData;
         /*transform.position.x.ToString(CultureInfo.InvariantCulture) + ","
                     + transform.position.y.ToString(CultureInfo.InvariantCulture) + ","
@@ -165,6 +165,37 @@ namespace AnchorRework
                 anchor.GetComponent<CapsuleCollider>().enabled = true;
             }*/
         }
+/*
+        private void LateUpdate()
+        {
+            if (held)
+            {
+                //Debug.Log("holding pointer = " + held);
+                GoPointer holdingPointer = held;
+                if (GameInput.GetKey((InputName)10))
+                {
+                    currentThrowPower += Time.deltaTime;
+                }
+                else if (GameInput.GetKeyUp((InputName)10))
+                {
+                    Rigidbody component = GetComponent<Rigidbody>();
+                    OnDrop();
+                    holdingPointer.DropItem();
+                    holdingPointer.StartCoroutine(ThrowItemAfterDelay(component, currentThrowPower, holdingPointer));
+                    currentThrowPower = 0f;
+                }
+            }
+        }
+        private IEnumerator ThrowItemAfterDelay(Rigidbody heldRigidbody, float force, GoPointer holdingPointer)
+        {
+            yield return new WaitForFixedUpdate();
+            if (force > 1f)
+            {
+                force = 1f;
+            }
+
+            heldRigidbody.AddForce(holdingPointer.transform.forward * holdingPointer.throwForce * force * heldRigidbody.mass);
+        }*/
         public override void OnPickup()
         {
             anchor.InvokePrivateMethod("ReleaseAnchor");
@@ -176,16 +207,38 @@ namespace AnchorRework
         }
         public override void OnDrop()
         {
-            GetAnchorController().currentLength = GetCurrentDistance() / anchorController.maxLength;
 
             if (isColliding)
             {
                 anchor.InvokePrivateMethod("SetAnchor");
             }
+            else
+            {
+                this.StartCoroutine(SetRopeLength());
+            }
             base.OnDrop();
             //Debug.Log(linearLimit.limit);
 
         }
+
+
+        IEnumerator WaitForDoneProcess(float timeout)
+        {
+            while (GetCurrentDistance() < anchorController.maxLength * 0.9 && !isColliding)
+            {
+                yield return null;
+                timeout -= Time.deltaTime;
+                if (timeout <= 0f) break;
+            }
+        }
+        IEnumerator SetRopeLength()
+        {
+            // instead of wait for seconds use the above
+            yield return WaitForDone(5f);// wait for done or 2 seconds, whichever comes first.
+            GetAnchorController().currentLength = GetCurrentDistance() / anchorController.maxLength;
+        }
+        YieldInstruction WaitForDone(float timeout) { return StartCoroutine(WaitForDoneProcess(timeout)); }
+
 
         private void OnCollisionExit(Collision collision)
         {
