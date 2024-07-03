@@ -69,21 +69,19 @@ namespace AnchorRework
                 Vector3 pos = new Vector3(float.Parse(strings[0], CultureInfo.InvariantCulture), float.Parse(strings[1], CultureInfo.InvariantCulture), float.Parse(strings[2], CultureInfo.InvariantCulture));
                 float savedLength = float.Parse(strings[5], CultureInfo.InvariantCulture);
                 float dist = Vector3.Magnitude(pos);
-                if (dist > savedLength) savedLength = dist;
+                if (dist > savedLength && dist < GetAnchorController().maxLength) savedLength = dist;
 
                 var lim = joint.linearLimit;
                 lim.limit = savedLength; //Vector3.Distance(pos, GetTopAttach().position); //float.Parse(strings[5], CultureInfo.InvariantCulture);
-                GetAnchorController().currentLength = lim.limit / GetAnchorController().maxLength; //float.Parse(strings[3], CultureInfo.InvariantCulture);
+                GetAnchorController().currentLength = savedLength / GetAnchorController().maxLength; //float.Parse(strings[3], CultureInfo.InvariantCulture);
                 joint.linearLimit = lim;
                 //Main.logSource.LogDebug("rope length= " + GetAnchorController().currentLength);
                 //Main.logSource.LogDebug("joint limit= " + joint.linearLimit.limit);
                 yield return new WaitForEndOfFrame();
                 transform.position = pos + GetTopAttach().position;
-                if (strings.Length >= 9)
-                {
-                    Vector3 rot = new Vector3(float.Parse(strings[6], CultureInfo.InvariantCulture), float.Parse(strings[7], CultureInfo.InvariantCulture), float.Parse(strings[8], CultureInfo.InvariantCulture));
-                    transform.eulerAngles = rot;
-                }
+
+                Vector3 rot = new Vector3(float.Parse(strings[6], CultureInfo.InvariantCulture), float.Parse(strings[7], CultureInfo.InvariantCulture), float.Parse(strings[8], CultureInfo.InvariantCulture));
+                transform.eulerAngles = rot;
                 if (strings[4] == "True") anchor.InvokePrivateMethod("SetAnchor");
             }
             //modData = GameState.modData;
