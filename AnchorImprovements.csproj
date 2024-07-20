@@ -100,6 +100,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveLoadPatches.cs" />
     <Compile Include="SaverLoader.cs" />
+    <Compile Include="TerrainFixer.cs" />
+    <Compile Include="WinchPatches.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
