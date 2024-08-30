@@ -1,14 +1,14 @@
 # Anchor Improvements
 
 **Features**
-- Anchors can now be picked up and set by hand. Still subject to rope length, so make sure you've let out enough line.
+- Anchors can now be picked up and set (or thrown) by hand
 - Anchor winches now slow under tension like other winches
 - Resizes the anchor and winch on the brig (this is purely visual, I thought they were too small)
 - Adds text to winch showing how much rope is currently out.
 - Fixes anchors rolling away downhill.
 - Anchor winches to behave the same on all ships.
 - Anchors can now set again after being pulled loose, instead of staying loose until lifted and dropped again.
-
+- Anchor position and rope length are now saved across reloads
 
 **Options**
  - Simple physics
