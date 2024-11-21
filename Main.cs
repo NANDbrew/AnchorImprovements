@@ -17,13 +17,11 @@ namespace AnchorRework
         public const string NAME = "Anchor Improvements";
         public const string VERSION = "1.1.5";
 
-        //internal static Main instance;
         internal static ManualLogSource logSource;
 
         internal static ConfigEntry<string> simplePhysics;
         internal static ConfigEntry<bool> saveAnchorPosition;
         internal static ConfigEntry<bool> winchInfo;
-        //internal static ConfigEntry<bool> advancedInfo;
 
         internal static List<PickupableBoatAnchor> boatAnchors = new List<PickupableBoatAnchor>();
 
