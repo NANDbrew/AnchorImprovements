@@ -14,9 +14,8 @@ namespace AnchorRework
         [HarmonyPostfix]
         public static void Postfix(IslandHorizon __instance)
         {
-            for (int i = 0; i < __instance.transform.childCount; i++)
+            foreach (Transform child in __instance.GetComponentsInChildren<Transform>())
             {
-                var child = __instance.transform.GetChild(i);
                 if (child.CompareTag("Untagged") && (child.name.ToLower().Contains("terrain")))
                 {
                     child.tag = "Terrain";

@@ -9,15 +9,15 @@ using System.Collections.Generic;
 namespace AnchorRework
 {
     [BepInPlugin(GUID, NAME, VERSION)]
-    [BepInDependency("com.app24.sailwindmoddinghelper", "2.0.3")]
+    //[BepInDependency("com.app24.sailwindmoddinghelper", "2.0.3")]
 
     internal class Main : BaseUnityPlugin
     {
         public const string GUID = "com.nandbrew.anchorimprovements";
         public const string NAME = "Anchor Improvements";
-        public const string VERSION = "1.1.4";
+        public const string VERSION = "1.1.5";
 
-        internal static Main instance;
+        //internal static Main instance;
         internal static ManualLogSource logSource;
 
         internal static ConfigEntry<string> simplePhysics;
