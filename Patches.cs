@@ -58,7 +58,7 @@ namespace AnchorRework
             [HarmonyPatch("FixedUpdate")]
             public static bool FixedUpdatePatch(Anchor __instance, ConfigurableJoint ___joint, ref float ___unsetForce, AudioSource ___audio, ref float ___lastLength, ref bool ___grounded, Rigidbody ___body, float ___anchorDrag, float ___initialMass, ref float ___outCurrentForce)
             {
-                if (Main.simplePhysics.Value != "Realistic") return true;
+                if (Main.simplePhysics.Value != PhysicsType.Realistic) return true;
                 if (!GameState.playing || !___joint.connectedBody.GetComponentInChildren<BoatHorizon>().closeToPlayer) return true;
 
                 if (___joint.linearLimit.limit > 1f)
@@ -158,7 +158,7 @@ namespace AnchorRework
             [HarmonyPostfix]
             public static void FixedUpdatePatchSimple(Anchor __instance, Rigidbody ___body, bool ___grounded, float ___anchorDrag, AudioSource ___audio, ref ConfigurableJoint ___joint)
             {
-                if (Main.simplePhysics.Value != "Simple") return;
+                if (Main.simplePhysics.Value != PhysicsType.Simple) return;
                 if (!GameState.playing || !___joint.connectedBody.GetComponentInChildren<BoatHorizon>().closeToPlayer) return;
 
                 SoftJointLimitSpring spring = ___joint.linearLimitSpring;
@@ -182,7 +182,7 @@ namespace AnchorRework
             public static bool Prefix(Anchor __instance, ConfigurableJoint ___joint, float ___unsetForce, AudioSource ___audio, float ___lastLength)
             {
                 //Main.logSource.LogInfo("Anchor Released");
-                if (Main.simplePhysics.Value != "Simple") return true;
+                if (Main.simplePhysics.Value != PhysicsType.Simple) return true;
 
                 Vector3 bottomAttach = ___joint.transform.position;
                 Vector3 topAttach = ___joint.connectedBody.transform.TransformPoint(___joint.connectedAnchor);
@@ -231,11 +231,11 @@ namespace AnchorRework
             [HarmonyPatch("Update")]
             public static void UpdatePatch(RopeControllerAnchor __instance, ConfigurableJoint ___joint, ref float ___currentResistance, ref float ___maxLength)
             {
-                if (Main.simplePhysics.Value == "Simple")
+                if (Main.simplePhysics.Value == PhysicsType.Simple)
                 {
                     ___maxLength = 50f;
                 }
-                if (Main.simplePhysics.Value == "Realistic")
+                if (Main.simplePhysics.Value == PhysicsType.Realistic)
                 {
                     ___maxLength = 150f;
                 }
@@ -246,7 +246,7 @@ namespace AnchorRework
                 {
                     if (Vector3.Distance(___joint.connectedBody.transform.TransformPoint(___joint.connectedAnchor), ___joint.transform.position) >= ___joint.linearLimit.limit)
                     {
-                        ___currentResistance = Mathf.Max(___joint.currentForce.magnitude, 5f);
+                        ___currentResistance = Mathf.Max(___joint.currentForce.magnitude * 0.8f, 5f);
                     }
                     else ___currentResistance = 5f;
                     

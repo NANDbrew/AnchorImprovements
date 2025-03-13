@@ -19,7 +19,7 @@ namespace AnchorRework
 
         internal static ManualLogSource logSource;
 
-        internal static ConfigEntry<string> simplePhysics;
+        internal static ConfigEntry<PhysicsType> simplePhysics;
         internal static ConfigEntry<bool> saveAnchorPosition;
         internal static ConfigEntry<bool> winchInfo;
 
@@ -31,7 +31,7 @@ namespace AnchorRework
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), GUID);
 
-            simplePhysics = Config.Bind("Options", "Anchor mechanics", "Simple", new ConfigDescription("Simple: Normal with minor improvements \nRealistic: Holding power based on scope (angle)", new AcceptableValueList<string>(new string[] { "Simple", "Realistic" })));
+            simplePhysics = Config.Bind("Options", "Anchor mechanics", PhysicsType.Simple, new ConfigDescription("Simple: Normal with minor improvements \nRealistic: Holding power based on scope (angle)"));
             saveAnchorPosition = Config.Bind("Options", "Save anchor position", true, new ConfigDescription(""));
             winchInfo = Config.Bind("Options", "Winch info", true, new ConfigDescription("Show how many yards of rope are out when looking at windlass"));
             //advancedInfo = Config.Bind("Options", "Advanced info", true, new ConfigDescription("Show extra info when looking at windlass"));
@@ -39,6 +39,9 @@ namespace AnchorRework
 
     }
 
-
-
+    internal enum PhysicsType
+    {
+        Simple,
+        Realistic
+    }
 }
