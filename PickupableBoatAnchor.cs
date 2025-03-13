@@ -20,12 +20,15 @@ namespace AnchorRework
         float currentThrowPower = 0f;
         private BoatHorizon boatHorizon;
         private bool closeToPlayer;
+        private float initialHoldDist = 1.5f;
+
+        Traverse HPthrowPower;
 
         private void Awake()
         {
-            holdDistance = 1.5f;
+            holdDistance = initialHoldDist;
             heldRotationOffset = 200f;
-            big = false;
+            big = true;
 
             if (!Main.boatAnchors.Contains(this))
             {
@@ -136,7 +139,7 @@ namespace AnchorRework
 #if DEBUG
                 Main.logSource.LogDebug("loaded data for " + dataName + ": " + anchorData);
 #endif
-
+                GameState.modData.Remove(dataName);
             }
         }
 
@@ -168,18 +171,26 @@ namespace AnchorRework
             if (held)
             {
                 //Debug.Log("holding pointer = " + held);
-                GoPointer holdingPointer = held;
                 if (GameInput.GetKey(InputName.Throw))
                 {
                     currentThrowPower += Time.deltaTime;
+                    HPthrowPower.SetValue(currentThrowPower);
+                    //float num2 = Mathf.Lerp(0, 0.5f, currentThrowPower);
+                    //this.transform.Translate(holdingPointer.transform.forward * (0f - num2), Space.World);
+                    //holdDistance = initialHoldDist - num2;
+                    //Debug.Log(num2);
                 }
                 else if (GameInput.GetKeyUp(InputName.Throw))
                 {
                     Rigidbody component = GetComponent<Rigidbody>();
                     OnDrop();
-                    holdingPointer.DropItem();
-                    holdingPointer.StartCoroutine(ThrowItemAfterDelay(component, currentThrowPower, holdingPointer));
-                    currentThrowPower = 0f;
+                    if (currentThrowPower > held.throwDelay)
+                    {
+                        held.StartCoroutine(ThrowItemAfterDelay(component, currentThrowPower - held.throwDelay, held));
+                        currentThrowPower = 0f;
+                    }
+                    held.DropItem();
+
                 }
             }
 
@@ -198,10 +209,11 @@ namespace AnchorRework
         }
         public override void OnPickup()
         {
+            HPthrowPower = Traverse.Create(held).Field("currentThrowPower");
             InvokePrivate(anchor, "ReleaseAnchor");
             Main.logSource.LogDebug("Picked up anchor");
             GetAnchorController().currentLength = anchorController.maxLength;
-
+            GetComponent<Collider>().isTrigger = true;
            // Main.logSource.LogDebug("anchor controller limit" + linearLimit.limit);
             //Main.logSource.LogDebug("joint limit" + joint.linearLimit.limit);
         }
@@ -213,6 +225,8 @@ namespace AnchorRework
 
         public override void OnDrop()
         {
+            GetComponent<Collider>().isTrigger = false;
+            holdDistance = initialHoldDist;
 
             if (isColliding)
             {
@@ -270,9 +284,9 @@ namespace AnchorRework
             }
         }
 
-        public override void OnScroll(float input)
+        /*public override void OnScroll(float input)
         {
             heldRotationOffset = 200f;
-        }
+        }*/
     }
 }
