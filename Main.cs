@@ -15,7 +15,7 @@ namespace AnchorRework
     {
         public const string GUID = "com.nandbrew.anchorimprovements";
         public const string NAME = "Anchor Improvements";
-        public const string VERSION = "1.1.5";
+        public const string VERSION = "1.1.6";
 
         internal static ManualLogSource logSource;
 
