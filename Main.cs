@@ -5,6 +5,7 @@ using System.Reflection;
 using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
+using BepInEx.Bootstrap;
 
 namespace AnchorRework
 {
@@ -15,7 +16,7 @@ namespace AnchorRework
     {
         public const string GUID = "com.nandbrew.anchorimprovements";
         public const string NAME = "Anchor Improvements";
-        public const string VERSION = "1.1.6";
+        public const string VERSION = "1.1.7";
 
         internal static ManualLogSource logSource;
 
@@ -28,6 +29,7 @@ namespace AnchorRework
         public void Awake()
         {
             logSource = Logger;
+            Harmony harmony = new Harmony(GUID);
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), GUID);
 
@@ -35,6 +37,13 @@ namespace AnchorRework
             saveAnchorPosition = Config.Bind("Options", "Save anchor position", true, new ConfigDescription(""));
             winchInfo = Config.Bind("Options", "Winch info", true, new ConfigDescription("Show how many yards of rope are out when looking at windlass"));
             //advancedInfo = Config.Bind("Options", "Advanced info", true, new ConfigDescription("Show extra info when looking at windlass"));
+        
+            MethodInfo original15 = AccessTools.Method(typeof(GPButtonRopeWinch), "Update");
+            MethodInfo patch15 = AccessTools.Method(typeof(WinchPatches), "Postfix");
+            if (!Chainloader.PluginInfos.ContainsKey("pr0skynesis.sailinfo"))
+            {
+                harmony.Patch(original15, new HarmonyMethod(patch15));
+            }
         }
 
     }

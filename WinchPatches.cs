@@ -8,9 +8,9 @@ using UnityEngine;
 
 namespace AnchorRework
 {
-    [HarmonyPatch(typeof(GPButtonRopeWinch))]
     internal static class WinchPatches
     {
+        [HarmonyPatch(typeof(GPButtonRopeWinch))]
         [HarmonyPostfix]
         [HarmonyPatch("FindBoat")]
         public static void FindBoatPatch(GPButtonRopeWinch __instance, PurchasableBoat ___boat, ref float ___gearRatio, ref float ___rotationSpeed, RopeController ___rope)
@@ -26,9 +26,9 @@ namespace AnchorRework
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch("Update")]
-        public static void WinchUpdatePatch(GPButtonRopeWinch __instance, GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
+        //[HarmonyPostfix]
+        //[HarmonyPatch("Update")]
+        public static void Postfix(GPButtonRopeWinch __instance, GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
         {
             if (___isLookedAt || (bool)___stickyClickedBy)
             {
