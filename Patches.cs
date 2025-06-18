@@ -1,9 +1,4 @@
-﻿using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
-using Microsoft.Win32;
-//using SailwindModdingHelper;
-using System;
+﻿using HarmonyLib;
 using UnityEngine;
 
 namespace AnchorRework
@@ -69,20 +64,13 @@ namespace AnchorRework
 
                     Vector3 bottomAttach = ___joint.transform.position;
                     Vector3 topAttach = ___joint.connectedBody.transform.TransformPoint(___joint.connectedAnchor);
-                    float angle1 = Vector3.Angle(topAttach - bottomAttach, ___joint.transform.root.up);
+                    float angle1 = Vector3.Angle(topAttach - bottomAttach, Vector3.up);
                     if (angle1 < 90) power2 = Power(angle1);
                     else power2 = Power(-angle1 % 90);
 
                     ___unsetForce = ___initialMass * power2;
 
-                    SoftJointLimitSpring spring = ___joint.linearLimitSpring;
-                    spring.spring = Mathf.Max(5000 - (power2 + ___joint.linearLimit.limit) * 20, ___initialMass * 10);
-                    spring.damper = spring.spring;
-                    ___joint.linearLimitSpring = spring;
 
-                    SoftJointLimit limit = ___joint.linearLimit;
-                    limit.contactDistance = (power2 + limit.limit) / 30;
-                    ___joint.linearLimit = limit;
 
 
                     if (___joint.currentForce.magnitude > ___unsetForce && !___audio.isPlaying)
@@ -96,6 +84,7 @@ namespace AnchorRework
                     }
 
 
+                    SoftJointLimitSpring spring = ___joint.linearLimitSpring;
                     if (___grounded)
                     {
                         if (___body.drag < ___anchorDrag)
@@ -110,23 +99,38 @@ namespace AnchorRework
                                 InvokePrivate(__instance, "SetAnchor");
                             }
                         }
+
+                        spring.spring = Mathf.Max(6000 - (power2 + ___joint.linearLimit.limit) * 20, ___initialMass * 20);
+                        spring.damper = spring.spring;
                     }
-                    else if (__instance.transform.position.y < 0f)
+                    else
                     {
-                        if (___body.drag > 3f)
+                        spring.spring = 5555;
+                        spring.damper = 10;
+                        if (__instance.transform.position.y < 0f)
                         {
-                            ___body.drag -= Time.deltaTime * ___anchorDrag * 0.25f;
-                        }
-                        else
-                        {
-                            ___body.drag = 3f;
-                        }
-                    }
+                            if (___body.drag > 3f)
+                            {
+                                ___body.drag -= Time.deltaTime * ___anchorDrag * 0.25f;
+                            }
+                            else
+                            {
+                                ___body.drag = 3f;
+                            }
+                        }                    }
+
+                    ___joint.linearLimitSpring = spring;
+
+                    SoftJointLimit limit = ___joint.linearLimit;
+                    limit.contactDistance = (power2 + limit.limit) / 30;
+                    ___joint.linearLimit = limit;
                 }
                 else
                 {
                     ___body.mass = 1f;
                 }
+
+
 
                 if ((bool)GameState.currentBoat && ___joint.connectedBody.transform == GameState.currentBoat.parent)
                 {
@@ -162,19 +166,29 @@ namespace AnchorRework
                 if (!GameState.playing || !___joint.connectedBody.GetComponentInChildren<BoatHorizon>().closeToPlayer) return;
 
                 SoftJointLimitSpring spring = ___joint.linearLimitSpring;
-                spring.damper = 2000f;
-                spring.spring = 2000f;
+                spring.spring = 5555 - ___joint.linearLimit.limit;
+                if (___grounded)
+                {
+                    if (___body.drag >= ___anchorDrag && ___body.velocity.sqrMagnitude < 1f)
+                    {
+                        bool isColliding = __instance.GetComponent<PickupableBoatAnchor>().isColliding;
+                        ___body.drag = ___anchorDrag;
+                        if (!___body.isKinematic && !___audio.isPlaying && isColliding)
+                        {
+                            InvokePrivate(__instance, "SetAnchor");
+                        }
+                    }
+                    spring.damper = 2000f;
+                    spring.spring = 2000f;
+                }
+                else
+                {
+                    spring.damper = 10f;
+                    spring.spring = 5555f;
+
+                }
                 ___joint.linearLimitSpring = spring;
 
-                if (___grounded && ___body.drag >= ___anchorDrag && ___body.velocity.sqrMagnitude < 1f)
-                {
-                    bool isColliding = __instance.GetComponent<PickupableBoatAnchor>().isColliding;
-                    ___body.drag = ___anchorDrag;
-                    if (!___body.isKinematic && !___audio.isPlaying && isColliding)
-                    {
-                        InvokePrivate(__instance, "SetAnchor");
-                    }
-                }
             }
 
             [HarmonyPrefix]
