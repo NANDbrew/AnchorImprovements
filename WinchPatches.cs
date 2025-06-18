@@ -5,15 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static ONSPPropagationMaterial;
 
 namespace AnchorRework
 {
-    internal static class WinchPatches
+    [HarmonyPatch(typeof(GPButtonRopeWinch), "Awake")]
+    public static class WinchStartPatch
     {
-        [HarmonyPatch(typeof(GPButtonRopeWinch))]
-        [HarmonyPostfix]
-        [HarmonyPatch("FindBoat")]
-        public static void FindBoatPatch(GPButtonRopeWinch __instance, PurchasableBoat ___boat, ref float ___gearRatio, ref float ___rotationSpeed, RopeController ___rope)
+        public static void Postfix(GPButtonRopeWinch __instance, PurchasableBoat ___boat, ref float ___gearRatio, ref float ___rotationSpeed, RopeController ___rope)
         {
             if (___rope is RopeControllerAnchor)
             {
@@ -25,10 +24,10 @@ namespace AnchorRework
                 ___rotationSpeed = 8f;
             }
         }
-
-        //[HarmonyPostfix]
-        //[HarmonyPatch("Update")]
-        public static void Postfix(GPButtonRopeWinch __instance, GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope, ref string ___lookText)
+    }
+    internal static class WinchTextPatch
+    {
+        public static void UpdatePatch(GPButtonRopeWinch __instance, GoPointer ___stickyClickedBy, bool ___isLookedAt, ref string ___description, RopeController ___rope)
         {
             if (___isLookedAt || (bool)___stickyClickedBy)
             {
@@ -43,16 +42,18 @@ namespace AnchorRework
                     }
                     //___lookText = System.Math.Round(angleReadout, 2) + " degrees";
                     //if (rope.joint.currentForce.magnitude > rope.joint.gameObject.GetComponent<Anchor>().unsetForce * 0.5) __instance.enableRedOutline = true;
-                    /*if (Main.advancedInfo.Value)
+#if DEBUG
+                    if (Main.advancedInfo.Value)
                     {
                         float spring = Mathf.Round(rope.joint.linearLimitSpring.spring);
-                        float dist = Mathf.Round(Vector3.Distance(rope.joint.GetComponent<PickupableBoatAnchor>().GetTopAttach().position, rope.joint.transform.position));
-                        float ang = Mathf.Round(Vector3.Angle(rope.joint.GetComponent<PickupableBoatAnchor>().GetTopAttach().position - rope.joint.transform.position, rope.joint.transform.root.up));
+                        float dist = Mathf.Round(Vector3.Distance(rope.joint.connectedBody.transform.TransformPoint(rope.joint.connectedAnchor), rope.joint.transform.position));
+                        float ang = Mathf.Round(Vector3.Angle(rope.joint.connectedBody.transform.TransformPoint(rope.joint.connectedAnchor) - rope.joint.transform.position, Vector3.up));
                         float power = Mathf.Round(rope.joint.gameObject.GetComponent<Anchor>().unsetForce);
                         float tensPercent = Mathf.Round(100 * (rope.joint.currentForce.magnitude / power));
-
-                        text = "length: " + len + "\ndistance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "\ntension: " + tensPercent + "%";
-                    }*/
+                        string color = tensPercent > 80 ? "#7C0000" : "#113905";
+                        text = "length: " + len + "\ndistance: " + dist + "\nangle: " + ang + "\u00B0\nspring: " + spring + "\npower: " + power + "<color="+ color + ">\ntension: " + tensPercent + "%</color>";
+                    }
+#endif
                     ___description = text;
                 }
 
