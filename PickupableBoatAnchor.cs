@@ -28,7 +28,7 @@ namespace AnchorRework
         {
             holdDistance = initialHoldDist;
             heldRotationOffset = 200f;
-            big = true;
+            //big = true;
 
             if (!Main.boatAnchors.Contains(this))
             {
@@ -230,6 +230,7 @@ namespace AnchorRework
 
             if (isColliding)
             {
+                Traverse.Create(anchor).Field("grounded").SetValue(true);
                 InvokePrivate(anchor, "SetAnchor");
                 //this.StartCoroutine(SetRopeLength(0));
                 GetAnchorController().currentLength = GetCurrentDistance() / anchorController.maxLength;
@@ -263,9 +264,9 @@ namespace AnchorRework
         YieldInstruction WaitForDone(float timeout) { return StartCoroutine(WaitForDoneProcess(timeout)); }
 
 
-        private void OnCollisionExit(Collision collision)
+        private void OnTriggerExit(Collider other)
         {
-            if (collision.collider.CompareTag("Terrain"))
+            if (other.CompareTag("Terrain") || other.CompareTag("OceanBottom"))
             {
                 isColliding = false;
                 if (held)
@@ -273,17 +274,23 @@ namespace AnchorRework
                     InvokePrivate(anchor, "ReleaseAnchor");
                 }
 
-            }      
+            }
         }
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnTriggerEnter(Collider other)
         {
-            if (collision.collider.CompareTag("Terrain"))
+            if (other.CompareTag("Terrain") || other.CompareTag("OceanBottom"))
             {
                 isColliding = true;
             }
         }
-
+        /*        private void OnCollisionStay(Collision collision)
+                {
+                    if (collision.collider.CompareTag("Terrain") || collision.collider.CompareTag("OceanBottom"))
+                    {
+                        isColliding = true;
+                    }
+                }*/
         /*public override void OnScroll(float input)
         {
             heldRotationOffset = 200f;
