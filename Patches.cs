@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using UnityEngine;
+using static ONSPPropagationMaterial;
 
 namespace AnchorRework
 {
@@ -24,6 +25,7 @@ namespace AnchorRework
 
                 GameObject gameObject = UnityEngine.GameObject.Instantiate(anchorStock, __instance.transform);
                 gameObject.transform.localPosition = new Vector3(0f, 0f, -0.28f);
+                gameObject.layer = 2;
                 CapsuleCollider stockCol = gameObject.AddComponent<CapsuleCollider>();
                 stockCol.radius = 0.05f;
                 stockCol.height = 0.6f;
@@ -36,6 +38,16 @@ namespace AnchorRework
                 ___anchorDrag += 5;
                 ___audio.maxDistance *= 3f;
                 if (___initialMass == 1f || ___initialMass == 75f) ___initialMass = 100f;
+            }
+
+            [HarmonyPostfix]
+            [HarmonyPatch("OnCollisionEnter")]
+            private static void OnCollisionEnterPatch(Collision collision, ConfigurableJoint ___joint, ref bool ___grounded)
+            {
+                if (collision.collider.CompareTag("OceanBottom") && ___joint.linearLimit.limit > 1f)
+                {
+                    ___grounded = true;
+                }
             }
         }
 
