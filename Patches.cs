@@ -245,13 +245,13 @@ namespace AnchorRework
         [HarmonyPatch(typeof(RopeControllerAnchor))]
         private static class RopeControllerAnchorPatches
         {
-/*            [HarmonyPostfix]
-            [HarmonyPatch("Start")]
-            public static void StartPatch(ref float ___maxLength)
+            [HarmonyPrefix]
+            [HarmonyPatch("ResetAnchor")]
+            public static void ResetPatch(RopeControllerAnchor __instance)
             {
-                ___maxLength *= 3;
+                __instance.joint.transform.position = __instance.transform.position + Vector3.down * 0.5f;
 
-            }*/
+            }
 
             [HarmonyPostfix]
             [HarmonyPatch("Update")]
