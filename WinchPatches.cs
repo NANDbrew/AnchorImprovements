@@ -16,12 +16,12 @@ namespace AnchorRework
         {
             if (___rope is RopeControllerAnchor)
             {
-                if (___boat.transform.name.Contains("medi medium"))
+                if (Main.brigResize.Value && ___boat.transform.name.Contains("medi medium"))
                 {
                     __instance.transform.localScale = new Vector3(2.0f, 2.0f, 1.5f);
                 }
-                ___gearRatio = 25f;
-                ___rotationSpeed = 8f;
+                ___gearRatio *= 2f;
+                //___rotationSpeed = 8f;
             }
         }
     }
